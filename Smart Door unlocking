@@ -1,0 +1,53 @@
+#include <Servo.h>
+
+const int trigPin1 = 2;
+const int echoPin1 = 4;
+const int trigPin2 = 3;
+const int echoPin2 = 5;
+const int servoPin = 9;
+const int threshold = 10; // Minimum detection distance (cm) for opening
+const int buzzerPin = 8; // Pin for buzzer (optional)
+
+Servo myservo; 
+int distance1, distance2;
+
+void setup() {
+  pinMode(trigPin1, OUTPUT);
+  pinMode(echoPin1, INPUT);
+  pinMode(trigPin2, OUTPUT);
+  pinMode(echoPin2, INPUT);
+  pinMode(servoPin, OUTPUT);
+  myservo.attach(servoPin); // Attach servo to specified pin
+  pinMode(buzzerPin, OUTPUT); // Optional: Set buzzer pin as output
+}
+
+void loop() {
+  // Read distance from sensor 1
+  distance1 = readDistance(trigPin1, echoPin1);
+
+  // Read distance from sensor 2
+  distance2 = readDistance(trigPin2, echoPin2);
+
+  // Check if an object is within the threshold distance for either sensor
+  if (distance1 <= threshold || distance2 <= threshold) {
+    myservo.write(90); // Open door (adjust servo angle as needed)
+    digitalWrite(buzzerPin, HIGH); // Optional: Activate buzzer
+    delay(5000); // Hold door open for 5 seconds (adjust as needed)
+  } else {
+    myservo.write(0); // Close door (adjust servo angle as needed)
+    digitalWrite(buzzerPin, LOW); // Optional: Silence buzzer
+  }
+
+  delay(1000); // Delay between readings (adjust as needed)
+}
+
+int readDistance(int trigPin, int echoPin) {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  int distance = duration * 0.034 / 2;
+  return distance;
+}
